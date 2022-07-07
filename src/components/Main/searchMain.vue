@@ -11,7 +11,7 @@
       <input
         type="text"
         placeholder="Search by City Name"
-        v-model="inputValue"
+        v-model.lazy="inputValue"
       />
     </div>
   </section>
@@ -59,7 +59,7 @@ div .inputBox span svg {
 
 div input {
   width: 100%;
-  padding: 10px 22px;
+  padding: 10px 35px 10px 20px;
   border: 1px solid rgba(224, 224, 224, 0.822);
   border-radius: 8px;
   font-size: 1em;
