@@ -17,7 +17,7 @@
 
       <h2>{{ data.temp }}°</h2>
 
-      <h3>Weather Desc</h3>
+      <h3>{{ data.description }}</h3>
     </div>
     <div class="sideData">
       <h2>Statistics</h2>
@@ -252,6 +252,7 @@ section {
 
 .mainData h3 {
   color: #3b3b3bea;
+  margin-top: 12px;
 }
 
 /* Side Data */
