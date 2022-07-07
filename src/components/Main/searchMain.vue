@@ -11,18 +11,27 @@
       <input
         type="text"
         placeholder="Search by City Name"
-        v-model.lazy="inputValue"
+        v-model="inputValue"
+        @keypress.enter="onSubmit"
       />
     </div>
   </section>
 </template>
 
 <script>
+import { eventBus } from "../../main";
+
 export default {
   data() {
     return {
       inputValue: "",
     };
+  },
+  methods: {
+    onSubmit() {
+      eventBus.$emit("input", this.inputValue);
+      this.inputValue = "";
+    },
   },
 };
 </script>

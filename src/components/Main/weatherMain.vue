@@ -1,10 +1,21 @@
 <template>
-  <section>
+  <div v-if="isLoading" class="loading">
+    <h1>Loading...</h1>
+  </div>
+  <section v-else>
     <div class="mainData">
-      <h1>Ankara</h1>
+      <h1>
+        <span>{{ data.city }}</span
+        >, {{ data.country }}
+      </h1>
       <p>{{ getCurrentDate() }}</p>
 
-      <img src="../../assets/weatherIcons/01d.png" alt="weather icon" />
+      <img
+        :src="'../../assets/weatherIcons/' + data.icon + '.png'"
+        alt="weather icon"
+      />
+
+      <h2>{{ data.temp }}°</h2>
 
       <h3>Weather Desc</h3>
     </div>
@@ -25,7 +36,7 @@
               d="M9.019 15.404c-.194 0-.335-.121-.422-.364-.087-.242-.131-.61-.131-1.102s.044-.858.131-1.097c.087-.238.228-.358.422-.358.372 0 .558.485.558 1.454 0 .979-.186 1.467-.558 1.467zm5.957.477c-.194 0-.335.119-.422.358-.087.239-.131.604-.131 1.097s.044.86.131 1.102c.087.242.228.364.422.364.372 0 .558-.489.558-1.466 0-.97-.186-1.455-.558-1.455zm5.024.194c0 4.378-3.579 7.925-8 7.925-4.421 0-8-3.547-8-7.925 0-5.887 5.667-7.117 8-16.075 2.333 8.958 8 10.188 8 16.075zm-10.993.533c.667 0 1.173-.224 1.518-.672.345-.448.518-1.118.518-2.01 0-.853-.175-1.51-.526-1.969-.351-.46-.854-.689-1.51-.689-1.338 0-2.007.886-2.007 2.659 0 .869.174 1.533.524 1.992.349.46.843.689 1.483.689zm6.038-5.218h-1.396l-4.718 8.505h1.396l4.718-8.505zm1.955 5.934c0-.853-.176-1.51-.527-1.969-.351-.46-.854-.689-1.51-.689-1.338 0-2.007.886-2.007 2.658 0 .865.174 1.527.523 1.987.35.459.845.689 1.485.689.667 0 1.173-.224 1.518-.672.345-.448.518-1.116.518-2.004z"
             />
           </svg>
-          70<span>%</span>
+          {{ data.humidity }}<span>%</span>
         </div>
       </div>
 
@@ -42,7 +53,7 @@
               d="M11 10h-11v-2h11c.552 0 1-.448 1-1s-.448-1-1-1c-.403 0-.747.242-.905.587l-1.749-.956c.499-.965 1.494-1.631 2.654-1.631 3.971 0 3.969 6 0 6zm7 7c0-1.656-1.344-3-3-3h-15v2h15c.552 0 1 .448 1 1s-.448 1-1 1c-.403 0-.747-.242-.905-.587l-1.749.956c.499.965 1.494 1.631 2.654 1.631 1.656 0 3-1.344 3-3zm1.014-7.655c.082-.753.712-1.345 1.486-1.345.827 0 1.5.673 1.5 1.5s-.673 1.5-1.5 1.5h-20.5v2h20.5c1.932 0 3.5-1.568 3.5-3.5s-1.568-3.5-3.5-3.5c-1.624 0-2.977 1.116-3.372 2.617l1.886.728z"
             />
           </svg>
-          5.3<span>km/s</span>
+          {{ data.wind }}<span>km/s</span>
         </div>
       </div>
 
@@ -68,7 +79,7 @@
 	C13.65,15.76,13.5,15.39,13.5,14.95z M14.81,10.28V8.12h0.69v2.17H14.81z M17.75,13.55v-0.74h2.17v0.74H17.75z"
             />
           </svg>
-          5.3<span>hPa</span>
+          {{ data.pressure }}<span>hPa</span>
         </div>
       </div>
 
@@ -90,7 +101,7 @@
               fill-rule="nonzero"
             />
           </svg>
-          5.3<span>m</span>
+          {{ data.visibility }}<span>m</span>
         </div>
       </div>
     </div>
@@ -98,9 +109,56 @@
 </template>
 
 <script>
+import { eventBus } from "../../main";
+
 export default {
   name: "WeatherMain",
+  data() {
+    return {
+      isLoading: true,
+      data: {
+        city: "izmir",
+        country: "tr",
+        icon: "01d",
+        description: "",
+        temp: "",
+        humidity: 0,
+        wind: 0,
+        pressure: 0,
+        visibility: 0,
+      },
+    };
+  },
   methods: {
+    async fetchData(city) {
+      fetch(
+        `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=165646a7eea43e8eae8c831b8da3d125&units=metric&lang=en`
+      )
+        .then((response) => {
+          if (response.ok) {
+            return response.json();
+          }
+          console.log("City not found.");
+        })
+        .then((data) => {
+          if (data) {
+            this.data.city = data.name;
+            this.data.country = data.sys.country;
+            this.data.icon = data.weather[0].icon;
+            this.data.description = data.weather[0].main;
+            this.data.humidity = data.main.humidity;
+            this.data.wind = data.wind.speed;
+            this.data.pressure = data.main.pressure;
+            this.data.visibility = data.visibility;
+            this.data.temp = Math.ceil(data.main.temp);
+            this.isLoading = false;
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+
     getCurrentDate() {
       let d = new Date();
       let months = [
@@ -133,6 +191,13 @@ export default {
       return `${day} ${date} ${month} ${year}`;
     },
   },
+  created() {
+    this.fetchData("Ankara");
+    eventBus.$on("input", (inputData) => {
+      this.isLoading = true;
+      this.fetchData(inputData);
+    });
+  },
 };
 </script>
 
@@ -160,6 +225,15 @@ section {
 
 .mainData h1 {
   font-size: 2.3em;
+  text-align: center;
+}
+
+.mainData h1 span {
+  text-transform: capitalize;
+}
+
+.mainData h2 {
+  margin: 4px auto;
 }
 
 .mainData p {
@@ -172,6 +246,8 @@ section {
 .mainData img {
   width: 100px;
   margin: 20px auto;
+  -webkit-filter: drop-shadow(5px 5px 5px rgba(34, 34, 34, 0.541));
+  filter: drop-shadow(5px 5px 5px rgba(34, 34, 34, 0.541));
 }
 
 .mainData h3 {
@@ -204,6 +280,7 @@ section {
   padding: 14px 10px;
   box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.144);
 }
+
 .sideData .data h2 {
   font-size: 1.03em;
   font-weight: 500;
@@ -238,5 +315,14 @@ section {
   .sideData {
     width: auto;
   }
+}
+
+/* Loading */
+
+.loading {
+  width: 100%;
+  text-align: center;
+  margin: 100px auto;
+  font-size: 1.2em;
 }
 </style>
