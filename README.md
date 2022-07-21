@@ -1,24 +1,5 @@
-# weather-app
+A weather app I developed while starting to learn Vue
 
-## Project setup
-```
-npm install
-```
+It allows you to instantly see the weather forecast for the city you specify.
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
-
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+Live: https://howeather-vue.netlify.app/
